@@ -205,7 +205,8 @@ class GeekTime:
         data = self.request(path, json=param)['data']
         logger.info('成功获取章节信息 cid:%s  %s', cid, data)
 
-        return {item['id']: "{}({}讲)".format(item['title'], item['article_count']) for item in data}
+        return {item['id']: "{}-{}({}讲)".format(index + 1, item['title'], item['article_count']) for index, item in
+                enumerate(data)}
 
     def fetch_column_articles(self, cid: str):
         """获取专栏所有文章 id 和名称

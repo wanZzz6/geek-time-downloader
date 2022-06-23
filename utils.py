@@ -27,6 +27,7 @@ def check_filename(file_name):
     return file_name.replace('\\', '') \
         .replace('/', '') \
         .replace('*', 'x') \
+        .replace(':', '：') \
         .replace('?', '') \
         .replace('<', '《') \
         .replace('>', '》') \
