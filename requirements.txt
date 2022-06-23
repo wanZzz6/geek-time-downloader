@@ -1,0 +1,3 @@
+requests
+pyyaml
+mutagen==1.45.1
