@@ -25,6 +25,7 @@ def check_filename(file_name):
         修复后的文件名称
     """
     return file_name.replace('\\', '') \
+        .replace(' ', '') \
         .replace('/', '') \
         .replace('*', 'x') \
         .replace(':', '：') \

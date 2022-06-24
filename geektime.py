@@ -338,8 +338,8 @@ class GeekTime:
         if comments_num > 0 or file_type != '.md':
             file_type = '.html'
         # 如果有章节信息，则按章节分目录保存
-        dir_name = Path(product['title'].strip().replace('/', '')).joinpath(
-            product['chapters'].get(article_detail['chapter_id'], '/'))
+        dir_name = Path(check_filename(product['title'])).joinpath(
+            check_filename(product['chapters'].get(article_detail['chapter_id'], '/')))
         dir_path = mkdir(dir_name)
         # 去除文件名中非法字符
         file_name = check_filename(article_detail['article_title'])
