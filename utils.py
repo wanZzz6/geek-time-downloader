@@ -64,7 +64,7 @@ def write_file(path: Union[str, Path], content: str, mode: str = 'w') -> Path:
 def download_audio(audio_url, file_name: Union[str, Path], audio_cover=''):
     if Path(file_name).resolve().exists():
         os.remove(file_name)
-
+    # fixme 偶尔卡住
     urlretrieve(audio_url, file_name)
     try:
         add_mp3_cover(file_name, audio_cover)
@@ -79,6 +79,10 @@ def add_mp3_cover(audio_name: Union[str, Path], pic_url: str):
     res = requests.get(pic_url)
     assert res.status_code < 400, '获取文章封面失败 {}'.format(res.status_code)
 
+    try:
+        audio.add_tags()
+    except Exception:
+        pass
     audio.tags.add(
         APIC(
             encoding=3,  # 3 is for utf-8

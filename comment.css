@@ -1,3 +1,4 @@
+
 img {
     max-width: 80%;
 }
@@ -7,17 +8,20 @@ ul {
     padding: 0;
     margin: 0;
 }
+
 .author-time {
     width: 60px;
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: lighter;
 }
+
 .CommentItemPC_main_2sjJG .CommentItemPC_info_36Chp {
     margin-left: 0.5rem;
     flex-grow: 1;
     padding-bottom: 20px;
 }
+
 .CommentItemPC_main_2sjJG .CommentItemPC_info_36Chp .CommentItemPC_bd_2_Qra {
     margin: 12px 0;
     color: #505050;
@@ -28,6 +32,7 @@ ul {
     word-break: break-all;
     line-height: 24px;
 }
+
 .CommentItemPC_main_2sjJG {
     list-style-position: inside;
     width: 100%;
@@ -36,6 +41,7 @@ ul {
     margin-top: 26px;
     border-bottom: 1px solid hsla(0, 0%, 91.4%, 0.6);
 }
+
 .CommentItemPC_main_2sjJG a {
     border-bottom: none;
 }
@@ -45,12 +51,14 @@ ul {
     box-shadow: 0 0 8px 1px rgba(140, 163, 191, 0.18);
     padding-bottom: 38px;
 }
+
 .CommentNestPC_loadingWrap_11bXF {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 96px;
 }
+
 .CommentNestPC_commentTitle_Qpg85 {
     font-size: 14px;
     font-weight: 400;
@@ -58,37 +66,45 @@ ul {
     padding: 10px 0 10px 28px;
     border-bottom: 1px solid #e9e9e9;
 }
+
 .CommentNestPC_commentList_2iyZS {
     padding: 0 28px;
 }
+
 .CommentNestPC_rootItem_1Z-FB {
     width: 100%;
     margin-top: 20px;
     border-bottom: 1px solid #e9e9e9;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_commentRoot_3mZyp {
     display: flex;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_commentChildWrap_1l4eG {
     margin-left: 40px;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_commentChildItem_Dk_TY {
     display: flex;
     padding-top: 20px;
     border-top: 1px solid #e9e9e9;
     transition: border-top 0.3s ease;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_avatar_3ACOG {
     width: 30px;
     height: 30px;
     flex-shrink: 0;
     border-radius: 50%;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_info_1hY1F {
     margin-left: 0.5rem;
     flex-grow: 1;
     padding-bottom: 14px;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_info_1hY1F .CommentNestPC_bd_2qXmR {
     margin-top: 10px;
     color: #505050;
@@ -99,9 +115,11 @@ ul {
     word-break: break-word;
     line-height: 24px;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_info_1hY1F .CommentNestPC_bd_2qXmR.CommentNestPC_deleted_3Zc_r {
     color: #888;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_info_1hY1F .CommentNestPC_username_1UqyJ {
     display: flex;
     align-items: center;
@@ -111,6 +129,7 @@ ul {
     -webkit-font-smoothing: antialiased;
     line-height: 34px;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_control_2ziRW {
     display: flex;
     flex-direction: row;
@@ -118,14 +137,17 @@ ul {
     align-items: center;
     margin-top: 15px;
 }
+
 .CommentNestPC_time_2JZ0H {
     color: #b2b2b2;
     font-size: 14px;
 }
+
 .CommentNestPC_rootItem_1Z-FB .CommentNestPC_control_2ziRW .CommentNestPC_actions_1ob-p {
     display: flex;
     align-items: center;
 }
+
 .CommentNestPC_paginationWrap_jBhDr {
     margin-top: 20px;
 }

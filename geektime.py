@@ -38,13 +38,17 @@ DOWNLOAD_HISTORY_FILE = 'download_history.txt'
 
 
 class GeekTime:
-    def __init__(self, phone: str = '', password: str = '', cookie='', is_jump_exist=True):
+    def __init__(self, phone: str = '', password: str = '', cookie: str = '', is_jump_exist: bool = True,
+                 is_request_delay: bool = True):
         """
         @param phone: phone number
         @param password: password
         @param cookie: 不用账号密码，从浏览器复制 cookie 字符串过来也行
-        @param is_jump_exist 是否跳过之前下载过的
+        @param is_jump_exist: 是否跳过之前下载过的
+        @param is_request_delay: 是否请求之间添加随机延迟
         """
+        self.is_request_delay = bool(is_request_delay)
+        self.is_jump_exist = bool(is_jump_exist)
         assert cookie or phone and password
         self.phone = phone
         self.password = password
@@ -53,7 +57,6 @@ class GeekTime:
         cookie and self.set_cookie(cookie)
         self._already_download = set()
         self._load_history()
-        self.is_jump_exist = bool(is_jump_exist)
 
         self.products = []
 
@@ -65,10 +68,10 @@ class GeekTime:
             return
         with open(DOWNLOAD_HISTORY_FILE, 'r', encoding='utf-8') as f:
             for i in f.readlines():
-                self._already_download.add(i.strip())
+                self._already_download.add(i.strip().split('-', 1)[0])
 
-    def _dump_record(self, article_id: str):
-        write_file(DOWNLOAD_HISTORY_FILE, '{}\n'.format(article_id), 'a')
+    def _dump_record(self, article_id: str, article_title: str):
+        write_file(DOWNLOAD_HISTORY_FILE, '{}-{}\n'.format(article_id, article_title), 'a')
         self._already_download.add(article_id)
 
     def has_download(self, article_id: str):
@@ -79,16 +82,15 @@ class GeekTime:
         self._session.cookies.update(tmp)
         self.check_cookie()
 
-    def request(self, url: str, method='post', random_sleep=True, **kwargs) -> dict:
+    def request(self, url: str, method='post', **kwargs) -> dict:
         """请求极客时间的接口，返回的都是 json 格式，没有使用高效的异步方式，且加了随机延迟，是怕频繁访问被限制
 
         @param url:
         @param method:
-        @param random_sleep: 随机等待
         @return: dict
         """
         logger.info(">>> {} {} {}".format(method.upper().center(5), url, kwargs))
-        random_sleep and time.sleep(random.random() * 2)
+        self.is_request_delay and time.sleep(random.random() * 2)
         parse_ret = urlparse(url)
         headers = {
             'Host': parse_ret[1],
@@ -105,15 +107,15 @@ class GeekTime:
             logger.error('接口返回json异常: {}'.format(resp.text))
             raise ApiQueryError
 
-    #############################################################################
+    # ############################################################################
     def check_cookie(self):
-        """随便请求个接口"""
-        url = 'https://time.geekbang.org/serv/v3/product/vips'
         try:
-            self.request(url)
+            self.fetch_user_products('c1', False)
             logger.info('cookie 有效')
-        except AssertionError as e:
-            raise Exception('cookie 已过期')
+        except AssertionError:
+            raise ApiQueryError('cookie 已过期') from None
+        except UnicodeEncodeError:
+            raise Exception('cookie 中不能有非ascii范围内的字符')
 
     def login(self) -> None:
         """login"""
@@ -130,7 +132,7 @@ class GeekTime:
             'source': ''
         }
 
-        self.request(path, random_sleep=False, json=param)
+        self.request(path, json=param)
         logger.info('登录成功')
 
     def fetch_column_info(self, pid: int, with_chapters=True):
@@ -236,7 +238,7 @@ class GeekTime:
         @param num: 评论数
         @return:
         """
-        url = 'https://time.geekbang.org/serv/v1/comments'
+        path = 'https://time.geekbang.org/serv/v1/comments'
         # 该接口按时间先后升序每次返回20条数据
         param = {
             "aid": aid,
@@ -247,7 +249,7 @@ class GeekTime:
         total = 0
         while total < num:
             logger.info('获取评论信息  aid: %s  page: %d', aid, (total // 20) + 1)
-            data = self.request(url, json=param, random_sleep=False)['data']
+            data = self.request(path, json=param)['data']
             tmp = []
             for comment in data['list']:
                 comment_detail = {key: comment[key] for key in keys}
@@ -275,8 +277,8 @@ class GeekTime:
                 for reply in replies]
 
     def _sub_comments(self, comment_id, num=10) -> list:
-        logger.info('获取子评论信息  comment_id： %s', comment_id)
-        url = 'https://time.geekbang.org/serv/discussion/v1/root_list'
+        logger.info('获取评论讨论区：  comment_id： %s', comment_id)
+        path = 'https://time.geekbang.org/serv/discussion/v1/root_list'
         data = {
             "use_likes_order": True,
             "target_id": comment_id,
@@ -285,8 +287,7 @@ class GeekTime:
             "prev": 1,
             "size": num
         }
-        data = self.request(url, json=data)['data']['list']
-        logger.info('成功获取子评论信息 comment_id： %s', comment_id)
+        data = self.request(path, json=data)['data']['list']
 
         return [self._format_sub_comments(item) for item in data]
 
@@ -362,39 +363,43 @@ class GeekTime:
             try:
                 comments = self.fetch_comments(article_detail['id'], comments_num)
                 logger.info('共获取到评论：{}'.format(len(comments)))
-            except Exception as e:
+            except Exception:
                 logger.error('获取评论失败', exc_info=True)
             else:
                 comment_html = self.comment_render.render(comments)
 
         content = f"""
-        <h1>{file_name}</h1>
-        <img src="{article_detail.get('article_cover')}" style="zoom: 67%;>
-        """
+<h1>{article_detail['article_title']}</h1>
+<img src="{article_detail.get('article_cover')}" style="zoom: 67%;" />
+<br>
+<br>
+"""
         if audio_uri:
             content += f'<audio title="{file_name}" src="{audio_uri}" controls="controls"></audio>'
-        content += f"""<br>
-    
-        {article_detail['article_content']}
-        <br>
-        <br>
-    
-        {comment_html}
-        """
+        content += f"""
+<br>
+{article_detail['article_content']}
+<br>
+<br>
+
+{comment_html}
+"""
 
         write_file(file_path, content)
-        self._dump_record(article_detail['id'])
+        self._dump_record(article_detail['id'], file_name)
 
-    ################################## 常用下载接口 ####################################
+    # ################################# 常用下载接口 ####################################
 
     def download_column(self, product: dict, file_type='.md', offline_pic=False, offline_audio=True,
                         comments_num=20):
         """下载专栏"""
-        logger.info('开始下载专栏：pid:%s  %s', product['id'], product['title'], )
+        logger.info(' 开始下载专栏：pid:%s  %s '.center(66, '#'), product['id'], product['title'], )
+        start = time.time()
         articles = self.fetch_column_articles(product['id'])
         for article in articles:
             self._download_article(product, article, file_type, offline_pic, offline_audio, comments_num)
             logger.info('-' * 100)
+        logger.info(' 专栏下载完成，文章数：%d，耗时：%.1fs '.center(66, '#'), len(articles), (time.time() - start))
 
     def _download_article(self, product: dict, article: dict, file_type='.md', offline_pic=False, offline_audio=True,
                           comments_num=20):
